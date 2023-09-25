@@ -1,0 +1,114 @@
+---
+  
+- name: disable swap
+  shell: swapoff -a
+
+- name: Remove swap from /etc/fstab
+  mount:
+    name: swap
+    fstype: swap
+    state: absent
+
+- name : Load Bridge settings
+  copy:
+    dest: /etc/modules-load.d/k8s.conf
+    content: |
+      overlay
+      br_netfilter
+
+- name: Enable sysctl for bridge settings
+  copy:
+    dest: /etc/sysctl.d/k8s.conf
+    content: |
+      net.bridge.bridge-nf-call-iptables  = 1
+      net.bridge.bridge-nf-call-ip6tables = 1
+      net.ipv4.ip_forward                 = 1
+
+- name : Enable  br_netfilter module
+  modprobe:
+    name: br_netfilter
+    state: present
+
+- name : Enable  overlay module
+  modprobe:
+    name: overlay
+    state: present
+
+- name: update sysctl
+  command: sysctl --system
+
+- name: Install Pre-req packages
+  apt:
+    pkg:  
+    - curl
+    - gnupg2 
+    - software-properties-common 
+    - apt-transport-https 
+    - ca-certificates
+
+- name: Add Apt key..
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    keyring : /etc/apt/trusted.gpg.d/docker.gpg
+  
+- name: Add source
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+- name : Adding kubernetes apt key..
+  apt_key:
+    url: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
+    keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+- name: Add source
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /"
+    state: present
+    filename: kubernetes
+
+- name: Install Containerd and kubeadm etc...
+  apt:
+    update_cache: yes    
+    pkg:
+      - containerd.io
+      - kubelet
+      - kubeadm
+      - kubectl
+    state: present
+
+- name: apt mark hold 
+  command: apt-mark hold kubelet kubeadm kubectl
+
+- name: checking SystemdCgroup = true
+  shell: |
+    grep -Rnw /etc/containerd/config.toml -e "SystemdCgroup = true"
+  ignore_errors: true
+  register: syscgrp
+
+- name: debug result
+  debug:
+    var: syscgrp.rc
+
+- name : Config containerd
+  shell: |
+    containerd config default | sudo tee /etc/containerd/config.toml >/dev/null 2>&1
+  when: syscgrp.rc != 0
+  ignore_errors: true
+
+- name: updating container config
+  shell: |
+    sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
+  when: syscgrp.rc != 0
+  ignore_errors: true
+
+- name: Enable the service
+  systemd:
+    name: containerd 
+
+
+- name: Restart containerd
+  systemd:
+    name: containerd
+    state: restarted
+
+

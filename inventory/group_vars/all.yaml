@@ -1,0 +1,6 @@
+pod_network_cidr: "10.1.0.0/16"
+vip_lb: "172.16.41.111"
+calico_url: "https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/tigera-operator.yaml"
+calico_custom_res: "https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/custom-resources.yaml"
+metallb_url: "https://raw.githubusercontent.com/metallb/metallb/v0.13.11/config/manifests/metallb-native.yaml"
+external_ip: ""

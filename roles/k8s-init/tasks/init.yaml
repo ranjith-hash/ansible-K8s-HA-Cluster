@@ -1,0 +1,85 @@
+- name : reset kubelet components
+  shell: "kubeadm reset -f"
+  register: reset_cluster
+
+
+- name: Init kubeadm
+  when: reset_cluster is succeeded
+  shell: |
+    kubeadm init --pod-network-cidr={{pod_network_cidr}} --control-plane-endpoint {{vip_lb}}:6443
+  register: rslt
+
+- name: Store init output
+  action: copy content="{{ rslt.stdout }}" dest="/etc/kubernetes/kubeadm-init.stdout"
+
+- name: "Fetching Kubernetes Master PKI files from primary master"
+  fetch:
+    src: /etc/kubernetes/pki/{{item}}
+    dest: /tmp/kubeadm-ha/pki/{{item}}
+    flat: yes
+  with_items:
+    - ca.crt
+    - ca.key
+    - sa.key
+    - sa.pub
+    - front-proxy-ca.crt 
+    - front-proxy-ca.key
+
+- name: "Fetching Kubernetes Master ETCD files from primary master"
+  fetch:
+    src: /etc/kubernetes/pki/etcd/{{item}}
+    dest: /tmp/kubeadm-ha/pki/etcd/{{item}}
+    flat: yes
+  with_items:
+    - ca.crt
+    - ca.key
+
+- name: "Fetching Kubernetes Master Admin files from primary master"
+  fetch:
+    src: /etc/kubernetes/{{item}}
+    dest: /tmp/kubeadm-ha/{{item}}
+    flat: yes
+  with_items:
+    - admin.conf
+
+- name: Create calico CNI
+  shell: |
+    kubectl create -f "{{calico_url}}"
+
+- name: Create calico custom resource 
+  shell: |
+    kubectl create -f "{{calico_custom_res}}"
+    
+- name: Remove taint
+  shell: |
+    kubectl taint nodes --all node-role.kubernetes.io/control-plane-
+    kubectl taint nodes --all node-role.kubernetes.io/master-
+
+- name: prep node for Installing metallb
+  shell: |
+    kubectl get configmap kube-proxy -n kube-system -o yaml | \
+    sed -e "s/strictARP: false/strictARP: true/" | \
+    kubectl apply -f - -n kube-system
+
+- name: Install metallb
+  shell: | 
+    kubectl apply -f "{{metallb_url}}"
+
+- name: Copying metal-lb
+  template:
+    src: metal-lb.j2
+    dest: /tmp/metal-lb.yaml
+
+- name: Applying metal-lb
+  shell: |
+    kubectl apply -f /tmp/metal-lb.yaml
+
+
+# - name : apply calico CNI network
+#   template:
+#     src: calico.yaml
+#     dest: /tmp/calico.yaml
+#     force: yes
+
+# - name: Create Calico Deployment
+#   shell: kubectl apply -f /tmp/calico.yaml

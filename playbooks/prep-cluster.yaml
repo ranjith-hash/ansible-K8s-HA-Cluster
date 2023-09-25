@@ -1,0 +1,7 @@
+- name: "Preparing cluster"
+  hosts: [k8s_nodes]
+  become: yes
+  become_user: root
+  roles:
+    - prep-cluster
+

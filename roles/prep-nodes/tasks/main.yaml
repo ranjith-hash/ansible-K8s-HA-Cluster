@@ -1,0 +1,12 @@
+- name: Setting up the hostname
+  hostname:
+    name: "{{node_hostname}}"
+
+- name: Add IP address of all hosts to all hosts
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '.*{{ item }}$'
+    line: "{{ hostvars[item].ansible_host }} {{hostvars[item].node_hostname}}"
+    state: present
+  when: hostvars[item].ansible_host is defined
+  with_items: "{{ groups.all }}"

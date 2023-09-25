@@ -1,0 +1,19 @@
+- name: Check kubeadm has already run
+  stat:
+    path: "/etc/kubernetes/pki/ca.key"
+  register: kubeadm_ca_slave
+
+- name: Debug
+  debug:
+    var: kubeadm_ca_slave
+
+- name: slave status
+  debug:
+    msg: Already joined to master
+  when: not kubeadm_ca_slave.stat.exists
+
+- name: Init cluster if needed
+  include_tasks: join.yaml
+  when: not kubeadm_ca_slave.stat.exists
+
+

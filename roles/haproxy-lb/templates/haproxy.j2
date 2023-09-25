@@ -1,0 +1,15 @@
+frontend kubernetes
+bind *:6443
+option tcplog
+
+mode tcp
+default_backend k8master_nodes
+
+backend k8master_nodes
+
+balance roundrobin
+option tcp-check
+{% for host in groups['k8s_master_nodes'] %}
+server {{host}} {{hostvars[host].ansible_host}}:6443 check fall 3 rise 2
+{%endfor%}
+

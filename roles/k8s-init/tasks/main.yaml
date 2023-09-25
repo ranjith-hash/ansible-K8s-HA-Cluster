@@ -1,0 +1,41 @@
+- name: Check kubeadm has already run
+  stat:
+    path: "/etc/kubernetes/pki/ca.key"
+  register: kubeadm_ca
+
+
+- name: Init cluster if needed
+  include_tasks: init.yaml
+  when: not kubeadm_ca.stat.exists
+  run_once: true
+
+- name: create .kube folder
+  file:
+    path: "~{{ansible_ssh_user}}/.kube"
+    state: directory
+    owner: "{{ansible_ssh_user}}"
+    
+
+- name: Copy admin.conf to user
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: "~{{ansible_ssh_user}}/.kube/config"
+    owner: "{{ansible_ssh_user}}"
+    remote_src: yes
+
+- name: create .kube folder
+  file:
+    path: "/root/.kube"
+    state: directory
+    owner: "root"
+
+
+- name: Copy admin.conf to root
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: "/root/.kube/config"
+    owner: root
+    remote_src: yes
+
+
+

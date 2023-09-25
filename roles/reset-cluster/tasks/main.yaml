@@ -1,0 +1,20 @@
+
+- name: stats
+  debug:
+    msg:  executing
+
+- name : resetting kubelet components
+  shell: "kubeadm reset -f"
+  register: reset_cluster
+
+- name: reset result
+  debug:
+    var: reset_cluster.stdout
+
+- name: Remove All containerd images
+  shell: ctr -n k8s.io i rm $(ctr -n k8s.io i ls -q )
+  register: deleted_imgs
+
+- name: Deleted Images
+  debug:
+    var: deleted_imgs.stdout

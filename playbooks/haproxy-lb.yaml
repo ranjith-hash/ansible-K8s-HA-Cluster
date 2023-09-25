@@ -1,0 +1,7 @@
+- name: Install And configure HaProxy
+  hosts: [haproxy_lb]
+  become: yes
+  become_user: root
+  roles:
+    - haproxy-lb
+    

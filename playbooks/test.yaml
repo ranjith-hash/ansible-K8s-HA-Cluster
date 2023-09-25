@@ -1,0 +1,7 @@
+- name: Testing Modules
+  hosts: [haproxy_lb]
+  tasks:
+    - name: Testing Modules
+      debug:
+        msg: "{{keepalived_state}} "
+  

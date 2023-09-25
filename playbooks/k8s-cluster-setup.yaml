@@ -1,0 +1,6 @@
+- import_playbook: prep-nodes.yaml
+- import_playbook: prep-cluster.yaml
+- import_playbook: haproxy-lb.yaml
+- import_playbook: k8s-int.yaml
+- import_playbook: k8s-join-master.yaml
+- import_playbook: k8s-join-workers.yaml

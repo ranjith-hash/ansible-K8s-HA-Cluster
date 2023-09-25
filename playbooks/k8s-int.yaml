@@ -1,0 +1,7 @@
+- name: "k8s Initalizing"
+  hosts: [k8s_master_primary]
+  become: yes
+  become_user: root
+  roles:
+    - k8s-init
+    

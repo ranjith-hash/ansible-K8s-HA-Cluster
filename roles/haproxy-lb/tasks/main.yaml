@@ -1,0 +1,35 @@
+- name: Installing HaProxy
+  apt:
+    pkg:
+      - haproxy
+    update_cache: yes
+    state: present
+
+- name: Configuring Haproxy
+  template:
+        src: haproxy.j2
+        dest: /etc/haproxy/haproxy.cfg
+
+- name: Enabling systemd
+  systemd:
+    name: haproxy
+    state: restarted
+    enabled: true
+
+- name: install keepalived
+  apt:
+    pkg:
+      - keepalived
+    state: present
+
+
+- name: Configuring keepalived
+  template:
+        src: keepalived.j2
+        dest: /etc/keepalived/keepalived.conf
+
+- name: Starting keepalived
+  systemd:
+    name: keepalived
+    state: restarted
+    enabled: true

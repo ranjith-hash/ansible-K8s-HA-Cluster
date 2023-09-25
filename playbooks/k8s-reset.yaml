@@ -1,0 +1,6 @@
+- name: "reset cluster"
+  hosts: [k8s_nodes]
+  become: yes
+  become_user: root
+  roles:
+    - reset-cluster

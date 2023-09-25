@@ -1,0 +1,7 @@
+- name: Joining worker nodes
+  hosts: [k8s_worker_nodes]
+  become: yes
+  become_user: root
+  roles:
+    - k8s-join-workers
+    
