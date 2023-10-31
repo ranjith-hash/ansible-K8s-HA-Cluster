@@ -1,10 +1,10 @@
 [k8s_master_primary]
-k8master01 ansible_host=172.16.41.91 ansible_user=itadmin node_hostname=k8master01.kosoft.co
+k8master01 ansible_host=172.16.41.91 ansible_user=ubuntu node_hostname=k8master01.kosoft.co
 
 
 [k8s_master_slave]
-k8master02 ansible_host=172.16.41.92 ansible_user=itadmin node_hostname=k8master02.kosoft.co
-k8master03 ansible_host=172.16.41.93 ansible_user=itadmin node_hostname=k8master03.kosoft.co
+k8master02 ansible_host=172.16.41.92 ansible_user=ubuntu node_hostname=k8master02.kosoft.co
+k8master03 ansible_host=172.16.41.93 ansible_user=ubuntu node_hostname=k8master03.kosoft.co
 
 
 [k8s_master_nodes:children]
@@ -15,9 +15,9 @@ k8s_master_slave
 k8s_master_nodes
 
 [k8s_worker_nodes]
-k8worker01 ansible_host=172.16.41.101 ansible_user=itadmin node_hostname=k8worker01.kosoft.co
-k8worker02 ansible_host=172.16.41.102 ansible_user=itadmin node_hostname=k8worker02.kosoft.co
-k8worker03 ansible_host=172.16.41.103 ansible_user=itadmin node_hostname=k8worker03.kosoft.co
+k8worker01 ansible_host=172.16.41.101 ansible_user=ubuntu node_hostname=k8worker01.kosoft.co
+k8worker02 ansible_host=172.16.41.102 ansible_user=ubuntu node_hostname=k8worker02.kosoft.co
+k8worker03 ansible_host=172.16.41.103 ansible_user=ubuntu node_hostname=k8worker03.kosoft.co
 
 [k8s_nodes:children]
 k8s_master_nodes
@@ -25,8 +25,8 @@ k8s_worker_nodes
 
 
 [haproxy_lb]
-haproxy-lb01 ansible_host=172.16.41.111  ansible_user=itadmin node_hostname=haproxy-lb01.kosoft.co keepalived_state=MASTER prt=103
-haproxy-lb02 ansible_host=172.16.41.112  ansible_user=itadmin node_hostname=haproxy-lb02.kosoft.co keepalived_state=BACKUP prt=102
-#haproxy-lb03 ansible_host=172.16.41.114  ansible_user=itadmin node_hostname=haproxy-lb03.kosoft.co keepalived_state=BACKUP prt=101
+haproxy-lb01 ansible_host=172.16.41.111  ansible_user=ubuntu node_hostname=haproxy-lb01.kosoft.co keepalived_state=MASTER prt=103
+haproxy-lb02 ansible_host=172.16.41.112  ansible_user=ubuntu node_hostname=haproxy-lb02.kosoft.co keepalived_state=BACKUP prt=102
+#haproxy-lb03 ansible_host=172.16.41.114  ansible_user=ubuntu node_hostname=haproxy-lb03.kosoft.co keepalived_state=BACKUP prt=101
 
 
